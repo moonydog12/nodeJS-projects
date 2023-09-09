@@ -1,4 +1,5 @@
 import yargs from 'yargs'
+import { getNotes, addNote, removeNote } from './note'
 
 // Create add command
 yargs.command(
@@ -17,8 +18,8 @@ yargs.command(
     },
   },
   // handler function
-  (argv) => {
-    console.log(`Body: ${argv.body}`)
+  ({ title, body }) => {
+    addNote(title, body)
   },
 )
 
@@ -26,9 +27,15 @@ yargs.command(
 yargs.command(
   'remove',
   'Remove a note',
-  () => {},
-  () => {
-    console.log('Removing the note')
+  {
+    title: {
+      describe: 'Note title',
+      demand: true,
+      type: 'string',
+    },
+  },
+  ({ title }) => {
+    removeNote(title)
   },
 )
 

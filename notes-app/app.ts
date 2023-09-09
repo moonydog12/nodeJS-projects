@@ -1,5 +1,5 @@
 import yargs from 'yargs'
-import { getNotes, addNote, removeNote } from './note'
+import { addNote, removeNote, listNotes, readNote } from './note'
 
 // Create add command
 yargs.command(
@@ -40,22 +40,23 @@ yargs.command(
 )
 
 // Create List command
-yargs.command(
-  'list',
-  'list the notes',
-  () => {},
-  () => {
-    console.log('Listing out all notes')
-  },
-)
+yargs.command('list', 'list the notes', {}, () => {
+  listNotes()
+})
 
 // Create read command
 yargs.command(
   'read',
   'read the notes',
-  () => {},
-  () => {
-    console.log('Reading a note')
+  {
+    title: {
+      describe: 'Note title',
+      demand: true,
+      type: 'string',
+    },
+  },
+  ({ title }) => {
+    readNote(title)
   },
 )
 

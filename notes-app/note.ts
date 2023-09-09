@@ -6,32 +6,29 @@ type Note = {
   body: string
 }
 
-function getNotes() {
-  return 'Your notes...'
-}
+const addNote = (title: string, body: string) => {
+  const notes: Note[] = loadNotes()
+  const duplicateNote = notes.find((note: Note) => note.title === title)
 
-const addNote = function (title: string, body: string) {
-  const notes = loadNotes()
-  const duplicateNotes = notes.filter((note: Note) => note.title === title)
-
-  if (duplicateNotes.length === 0) {
-    notes.push({
-      title,
-      body,
-    })
-    saveNotes(notes)
-    console.log(chalk.green.inverse('New note added'))
-  } else {
+  if (duplicateNote) {
     console.log(chalk.red.inverse('Note title already taken!'))
+    return
   }
+
+  notes.push({
+    title,
+    body,
+  })
+  saveNotes(notes)
+  console.log(chalk.green.inverse('New note added'))
 }
 
-const saveNotes = function (notes: Note[]) {
+const saveNotes = (notes: Note[]) => {
   const dataJSON = JSON.stringify(notes)
   fs.writeFileSync('../notes.json', dataJSON)
 }
 
-const loadNotes = function () {
+const loadNotes = () => {
   try {
     const dataBuffer = fs.readFileSync('../notes.json')
     const dataJson = dataBuffer.toString()
@@ -41,7 +38,7 @@ const loadNotes = function () {
   }
 }
 
-const removeNote = function (title: string) {
+const removeNote = (title: string) => {
   const notes: Note[] = loadNotes()
   const notesToKeep = notes.filter((note) => note.title !== title)
   const dataJSON = JSON.stringify(notesToKeep)
@@ -57,4 +54,22 @@ const removeNote = function (title: string) {
   console.log(chalk.red.inverse('No note found!'))
 }
 
-export { getNotes, addNote, removeNote }
+const listNotes = () => {
+  const notes: Note[] = loadNotes()
+  console.log(chalk.yellow('Your notes'))
+  notes.forEach((note: Note) => console.log(note.title))
+}
+
+const readNote = (title: string) => {
+  const notes: Note[] = loadNotes()
+  const note = notes.find((note) => note.title === title)
+
+  if (note) {
+    console.log(chalk.inverse(note.title))
+    console.log(note.body)
+  } else {
+    console.log(chalk.red.inverse('Note not found'))
+  }
+}
+
+export { addNote, removeNote, listNotes, readNote }

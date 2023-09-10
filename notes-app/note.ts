@@ -15,7 +15,7 @@ class NoteApp {
 
   loadNotes() {
     try {
-      const dataBuffer = fs.readFileSync('../notes.json')
+      const dataBuffer = fs.readFileSync('./notes.json')
       const dataJson = dataBuffer.toString()
       return JSON.parse(dataJson)
     } catch (error) {
@@ -42,7 +42,7 @@ class NoteApp {
   saveNotes() {
     try {
       const dataJSON = JSON.stringify(this.notes)
-      fs.writeFileSync('../notes.json', dataJSON)
+      fs.writeFileSync('./notes.json', dataJSON)
     } catch (error: any) {
       console.error(chalk.red.inverse('Error saving notes:', error.message))
     }
@@ -68,7 +68,7 @@ class NoteApp {
     this.notes.forEach((note: Note) => console.log(note.title))
   }
 
-  readNote = (title: string) => {
+  readNote(title: string) {
     const note = this.notes.find((note) => note.title === title)
 
     if (!note) {

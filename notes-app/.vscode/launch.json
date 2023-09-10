@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Node.js",
+      "program": "${workspaceFolder}/app.ts", // Adjust the entry file path
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"], // Adjust the output directory
+      "args": ["add"],
+      "sourceMaps": true,
+      "smartStep": true
+    }
+  ]
+}

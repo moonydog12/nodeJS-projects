@@ -6,70 +6,79 @@ type Note = {
   body: string
 }
 
-const addNote = (title: string, body: string) => {
-  const notes: Note[] = loadNotes()
-  const duplicateNote = notes.find((note: Note) => note.title === title)
+class NoteApp {
+  private notes: Note[]
 
-  if (duplicateNote) {
-    console.log(chalk.red.inverse('Note title already taken!'))
-    return
+  constructor() {
+    this.notes = this.loadNotes()
   }
 
-  notes.push({
-    title,
-    body,
-  })
-  saveNotes(notes)
-  console.log(chalk.green.inverse('New note added'))
-}
-
-const saveNotes = (notes: Note[]) => {
-  const dataJSON = JSON.stringify(notes)
-  fs.writeFileSync('../notes.json', dataJSON)
-}
-
-const loadNotes = () => {
-  try {
-    const dataBuffer = fs.readFileSync('../notes.json')
-    const dataJson = dataBuffer.toString()
-    return JSON.parse(dataJson)
-  } catch (error) {
-    return []
-  }
-}
-
-const removeNote = (title: string) => {
-  const notes: Note[] = loadNotes()
-  const notesToKeep = notes.filter((note) => note.title !== title)
-  const dataJSON = JSON.stringify(notesToKeep)
-
-  // note have been removed
-  if (notes.length > notesToKeep.length) {
-    console.log(chalk.green.inverse('Note removed!'))
-    fs.writeFileSync('../notes.json', dataJSON)
-    return
+  loadNotes() {
+    try {
+      const dataBuffer = fs.readFileSync('../notes.json')
+      const dataJson = dataBuffer.toString()
+      return JSON.parse(dataJson)
+    } catch (error) {
+      return []
+    }
   }
 
-  // noting was removed
-  console.log(chalk.red.inverse('No note found!'))
-}
+  addNote(title: string, body: string) {
+    const duplicateNote = this.notes.find((note: Note) => note.title === title)
 
-const listNotes = () => {
-  const notes: Note[] = loadNotes()
-  console.log(chalk.yellow('Your notes'))
-  notes.forEach((note: Note) => console.log(note.title))
-}
+    if (duplicateNote) {
+      console.log(chalk.red.inverse('Note title already taken!'))
+      return
+    }
 
-const readNote = (title: string) => {
-  const notes: Note[] = loadNotes()
-  const note = notes.find((note) => note.title === title)
+    this.notes.push({
+      title,
+      body,
+    })
+    this.saveNotes()
+    console.log(chalk.green.inverse('New note added'))
+  }
 
-  if (note) {
+  saveNotes() {
+    try {
+      const dataJSON = JSON.stringify(this.notes)
+      fs.writeFileSync('../notes.json', dataJSON)
+    } catch (error: any) {
+      console.error(chalk.red.inverse('Error saving notes:', error.message))
+    }
+  }
+
+  removeNote(title: string) {
+    const notesToKeep = this.notes.filter((note) => note.title !== title)
+
+    // note have been removed
+    if (notesToKeep.length < this.notes.length) {
+      console.log(chalk.green.inverse('Note removed!'))
+      this.notes = notesToKeep
+      this.saveNotes()
+      return
+    }
+
+    // noting was removed
+    console.log(chalk.red.inverse('No note found!'))
+  }
+
+  listNotes() {
+    console.log(chalk.yellow('Your notes'))
+    this.notes.forEach((note: Note) => console.log(note.title))
+  }
+
+  readNote = (title: string) => {
+    const note = this.notes.find((note) => note.title === title)
+
+    if (!note) {
+      console.log(chalk.red.inverse('Note not found'))
+      return
+    }
+
     console.log(chalk.inverse(note.title))
     console.log(note.body)
-  } else {
-    console.log(chalk.red.inverse('Note not found'))
   }
 }
 
-export { addNote, removeNote, listNotes, readNote }
+export default NoteApp

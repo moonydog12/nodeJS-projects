@@ -1,5 +1,7 @@
 import yargs from 'yargs'
-import { addNote, removeNote, listNotes, readNote } from './note'
+import NoteApp from './note'
+
+const noteApp = new NoteApp()
 
 // Create add command
 yargs.command(
@@ -19,7 +21,7 @@ yargs.command(
   },
   // handler function
   ({ title, body }) => {
-    addNote(title, body)
+    noteApp.addNote(title, body)
   },
 )
 
@@ -35,13 +37,13 @@ yargs.command(
     },
   },
   ({ title }) => {
-    removeNote(title)
+    noteApp.removeNote(title)
   },
 )
 
 // Create List command
 yargs.command('list', 'list the notes', {}, () => {
-  listNotes()
+  noteApp.listNotes()
 })
 
 // Create read command
@@ -56,7 +58,7 @@ yargs.command(
     },
   },
   ({ title }) => {
-    readNote(title)
+    noteApp.readNote(title)
   },
 )
 

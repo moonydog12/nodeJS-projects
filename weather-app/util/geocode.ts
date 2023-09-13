@@ -1,15 +1,12 @@
 import axios from 'axios'
-import dotenv from 'dotenv'
 
-dotenv.config({ path: '../../.env' })
+type Config = {
+  baseURL: string
+  key: string
+}
 
-const API_GEO_URL = process.env.API_GEO_URL
-const API_GEO_KEY = process.env.API_GEO_KEY
-
-export default function geocode(address: string, callback: CallableFunction) {
-  const url = `${API_GEO_URL}/${encodeURIComponent(
-    address,
-  )}.json?access_token=${API_GEO_KEY}&limit=1`
+function geocode(address: string, callback: CallableFunction, { baseURL, key }: Config) {
+  const url = `${baseURL}/${encodeURIComponent(address)}.json?access_token=${key}&limit=1`
   axios
     .get(url)
     .then((response) => response.data)
@@ -19,6 +16,7 @@ export default function geocode(address: string, callback: CallableFunction) {
       } else {
         const [longitude, latitude] = data.features[0].center
         const { place_name } = data.features[0]
+        console.log(`Location: ${place_name}`)
 
         callback(undefined, {
           longitude,
@@ -31,3 +29,5 @@ export default function geocode(address: string, callback: CallableFunction) {
       callback(error, undefined)
     })
 }
+
+export default geocode

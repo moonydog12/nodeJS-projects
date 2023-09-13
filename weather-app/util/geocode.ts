@@ -10,12 +10,12 @@ function geocode(address: string, callback: CallableFunction, { baseURL, key }: 
   axios
     .get(url)
     .then((response) => response.data)
-    .then((data) => {
-      if (data.features.length === 0) {
+    .then(({ features }) => {
+      if (features.length === 0) {
         callback('Unable to find location, Try another search.', undefined)
       } else {
-        const [longitude, latitude] = data.features[0].center
-        const { place_name } = data.features[0]
+        const [longitude, latitude] = features[0].center
+        const { place_name } = features[0]
         console.log(`Location: ${place_name}`)
 
         callback(undefined, {

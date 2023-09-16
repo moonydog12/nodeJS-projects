@@ -1,9 +1,13 @@
 import express from 'express';
+import dotenv from 'dotenv';
 import path from 'path';
 import hbs from 'hbs';
+import geocode from './util/geocode';
+import forecast from './util/forecast';
 
 const app = express();
 const port = 8000;
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 // Define paths for express config in EJS module
 const publicDirectoryPath = path.join(__dirname, '../public');
@@ -38,10 +42,64 @@ app.get('/help', (req, res) => {
   });
 });
 
-app.get('/weather', (req, res) => {
+app.get('/weather', async (req, res) => {
+  if (!req.query.address) {
+    res.send({
+      error: 'You must provide an address!',
+    });
+    return;
+  }
+
+  try {
+    const data = await geocode(req.query.address, {
+      baseURL: process.env.API_GEO_URL,
+      key: process.env.API_GEO_KEY,
+    });
+    const { longitude, latitude, location } = data;
+    const forecastMsg = await forecast(longitude, latitude, {
+      baseURL: process.env.API_WEATHER_URL,
+      key: process.env.API_WEATHER_KEY,
+    });
+
+    res.send({
+      location,
+      forecast: forecastMsg,
+      address: req.query.address,
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      error,
+    });
+  }
+});
+
+app.get('/products', (req, res) => {
+  if (!req.query.search) {
+    res.send({
+      error: 'You must provide a search term',
+    });
+    return;
+  }
+
   res.send({
-    location: 'Taiwan',
-    forecast: 'It is raining',
+    products: [],
+  });
+});
+
+app.get('/help/*', (req, res) => {
+  res.render('error', {
+    title: 404,
+    name: 'Moonydog12',
+    errorMessage: 'Help article not found.',
+  });
+});
+
+app.get('*', (req, res) => {
+  res.render('error', {
+    title: 404,
+    name: 'Moonydog12',
+    errorMessage: 'Page not found.',
   });
 });
 

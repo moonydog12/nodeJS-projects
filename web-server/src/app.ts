@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -43,15 +44,17 @@ app.get('/help', (req, res) => {
 });
 
 app.get('/weather', async (req, res) => {
-  if (!req.query.address) {
-    res.send({
+  const { address } = req.query;
+
+  if (!address) {
+    res.status(404).json({
       error: 'You must provide an address!',
     });
     return;
   }
 
   try {
-    const data = await geocode(req.query.address, {
+    const data = await geocode(address, {
       baseURL: process.env.API_GEO_URL,
       key: process.env.API_GEO_KEY,
     });
@@ -67,10 +70,7 @@ app.get('/weather', async (req, res) => {
       address: req.query.address,
     });
   } catch (error) {
-    console.log(error);
-    res.send({
-      error,
-    });
+    res.status(404).send('test');
   }
 });
 

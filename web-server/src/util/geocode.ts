@@ -17,9 +17,8 @@ async function geocode(address: string, { baseURL, key }: Config) {
       latitude,
       location,
     };
-  } catch (error) {
-    console.log(error);
-    return error;
+  } catch (error: any) {
+    throw new Error(error.message);
   }
 }
 

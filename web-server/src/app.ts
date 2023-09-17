@@ -2,107 +2,123 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
-import hbs from 'hbs';
 import geocode from './util/geocode';
 import forecast from './util/forecast';
 
-const app = express();
-const port = 8000;
-dotenv.config({ path: path.join(__dirname, '../.env') });
+class App {
+  private readonly app: express.Application;
 
-// Define paths for express config in EJS module
-const publicDirectoryPath = path.join(__dirname, '../public');
-const partialsPath = path.join(__dirname, '../templates/partials');
+  private readonly port: number;
 
-// Setup handlebars engine and views location
-app.set('view engine', 'hbs');
-app.set('views', path.join(__dirname, '../templates/views'));
-hbs.registerPartials(partialsPath);
+  private weatherBaseURL: string;
 
-// Setup static directory
-app.use(express.static(publicDirectoryPath));
+  private weatherAPIKey: string;
 
-app.get('', (req, res) => {
-  res.render('index', {
-    title: 'Weather App',
-    name: 'Moonydog12',
-  });
-});
+  private geoBaseURL: string;
 
-app.get('/about', (req, res) => {
-  res.render('about', {
-    title: 'About',
-    name: 'Moonydog12',
-  });
-});
+  private geoAPIKey: string;
 
-app.get('/help', (req, res) => {
-  res.render('help', {
-    title: 'Help',
-    name: 'Moonydog12',
-  });
-});
+  private address: string;
 
-app.get('/weather', async (req, res) => {
-  const { address } = req.query;
+  constructor() {
+    this.app = express();
+    this.port = parseInt(process.env.PORT || '8000', 10);
 
-  if (!address) {
-    res.status(404).json({
-      error: 'You must provide an address!',
-    });
-    return;
+    // Load environment variables
+    dotenv.config({ path: path.join(__dirname, '../.env') });
+    this.weatherBaseURL = process.env.API_WEATHER_URL!;
+    this.weatherAPIKey = process.env.API_WEATHER_KEY!;
+    this.geoBaseURL = process.env.API_GEO_URL!;
+    this.geoAPIKey = process.env.API_GEO_KEY!;
+    this.address = '';
+
+    // Set up middleware and routes
+    this.configureExpress();
+    this.configureRoutes();
   }
 
-  try {
-    const data = await geocode(address, {
-      baseURL: process.env.API_GEO_URL,
-      key: process.env.API_GEO_KEY,
-    });
-    const { longitude, latitude, location } = data;
-    const forecastMsg = await forecast(longitude, latitude, {
-      baseURL: process.env.API_WEATHER_URL,
-      key: process.env.API_WEATHER_KEY,
-    });
+  private configureExpress() {
+    // Define paths for express config
+    const publicDirectoryPath = path.join(__dirname, '../public');
+    const viewsPath = path.join(__dirname, '../templates/views');
 
-    res.send({
-      location,
-      forecast: forecastMsg,
-      address: req.query.address,
-    });
-  } catch (error) {
-    res.status(404).send('test');
-  }
-});
+    // Setup handlebars engine and views location
+    this.app.set('view engine', 'ejs');
+    this.app.set('views', viewsPath);
 
-app.get('/products', (req, res) => {
-  if (!req.query.search) {
-    res.send({
-      error: 'You must provide a search term',
-    });
-    return;
+    // Serve static files from the public directory
+    this.app.use(express.static(publicDirectoryPath));
   }
 
-  res.send({
-    products: [],
-  });
-});
+  private configureRoutes() {
+    this.app.get('', (req, res) => {
+      res.render('index', {
+        title: 'Weather App',
+        name: 'Moonydog12',
+      });
+    });
 
-app.get('/help/*', (req, res) => {
-  res.render('error', {
-    title: 404,
-    name: 'Moonydog12',
-    errorMessage: 'Help article not found.',
-  });
-});
+    this.app.get('/about', (req, res) => {
+      res.render('about', {
+        title: 'About',
+        name: 'Moonydog12',
+      });
+    });
 
-app.get('*', (req, res) => {
-  res.render('error', {
-    title: 404,
-    name: 'Moonydog12',
-    errorMessage: 'Page not found.',
-  });
-});
+    this.app.get('/help', (req, res) => {
+      res.render('help', {
+        title: 'Help',
+        name: 'Moonydog12',
+      });
+    });
 
-app.listen(port, () => {
-  console.log(`Server is up on port ${port}`);
-});
+    this.app.get('/weather', async (req, res) => {
+      const { address } = req.query;
+      this.address = address;
+
+      if (!this.address || this.address === '') {
+        res.status(400).json({
+          error: 'You must provide an address!',
+        });
+        return;
+      }
+
+      try {
+        const data = await geocode(this.address, {
+          baseURL: this.geoBaseURL,
+          key: this.geoAPIKey,
+        });
+        const { longitude, latitude, location } = data;
+        const forecastMsg = await forecast(longitude, latitude, {
+          baseURL: this.weatherBaseURL,
+          key: this.weatherAPIKey,
+        });
+
+        res.send({
+          location,
+          forecast: forecastMsg,
+          address: req.query.address,
+        });
+      } catch (error) {
+        res.status(404).send('test');
+      }
+    });
+
+    this.app.get('*', (req, res) => {
+      res.render('error', {
+        title: 404,
+        name: 'Moonydog12',
+        errorMessage: 'Page not found.',
+      });
+    });
+  }
+
+  startServer() {
+    this.app.listen(this.port, () => {
+      console.log(`Server is up on port ${this.port}`);
+    });
+  }
+}
+
+const app = new App();
+app.startServer();

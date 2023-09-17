@@ -1,18 +1,18 @@
-<html lang='en'>
-  {{> head }}
+<html lang="en">
+  <%- include('../partials/head.ejs') %>
   <body>
     <div class="main-content">
-      {{> header }}  
+      <%- include('../partials/header.ejs') %>
       <p>Use this site to get your weather!</p>
       <form action="">
-        <input type="text" placeholder="Location">
+        <input type="text" placeholder="Location" />
         <button>Search</button>
       </form>
 
       <p class="location"></p>
       <p class="forecast"></p>
     </div>
-      {{> footer }}
+    <%- include('../partials/footer.ejs') %>
   </body>
   <script src="js/app.js"></script>
-</html> 
+</html>

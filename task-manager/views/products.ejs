@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Posts</title>
+    <title>Fuck</title>
   </head>
   <style>
     p {
@@ -23,10 +23,12 @@
     }
   </style>
   <body>
-    <% for( let i = 0; i < posts.length; i++ ) { %>
-    <div data-uuid="<%= posts[i].id %>" class="card">
-      <p class="title"><%= posts[i].title %></p>
-      <p><%= posts[i].content %></p>
+    <% for( let i = 0; i < products.length; ++i ) { %>
+    <div data-uuid="<%= products[i].id %>" class="card">
+      <p class="title"><%= products[i].name %></p>
+      <p><%= products[i].department %></p>
+      <p><%= products[i].price %></p>
+      <p><%= products[i].weight %></p>
     </div>
     <% } %>
   </body>
@@ -44,7 +46,7 @@
 
   async function fetchData() {
     try {
-      const response = await fetch('http://localhost:8000/posts')
+      const response = await fetch('http://localhost:8000/products')
       const data = await response.json()
       console.log(data)
     } catch (error) {

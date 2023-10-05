@@ -1,7 +1,7 @@
 import express from 'express'
 import connectToDB from './db'
 import { databaseSource } from './db'
-import Post from './models/Post'
+import Post from './models/Products'
 import path from 'path'
 
 const app = express()
@@ -11,13 +11,12 @@ app.set('views', viewsPath)
 const postRepository = databaseSource.getRepository(Post)
 
 app.get('', async (req, res) => {
-  const posts = await postRepository.find({ order: { createdAt: 'DESC' } })
-  res.render('posts', { posts })
+  res.send('Hello World')
 })
 
-app.get('/posts', async (req, res) => {
-  const posts = await postRepository.find({ order: { createdAt: 'DESC' } })
-  res.send(posts)
+app.get('/products', async (req, res) => {
+  const products = await postRepository.find({ order: { id: 'desc' } })
+  res.render('products', { products })
 })
 
 connectToDB()

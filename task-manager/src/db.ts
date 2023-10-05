@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm'
 import dotenv from 'dotenv'
-import Post from './models/Post'
+import Products from './models/Products'
 
 dotenv.config()
 
@@ -8,11 +8,11 @@ export const databaseSource = new DataSource({
   type: 'postgres',
   host: 'localhost',
   port: 5432,
-  username: 'postgres',
-  password: '000',
-  database: 'blog',
-  entities: [Post],
-  synchronize: true, //! remove in prod
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DBNAME,
+  entities: [Products],
+  // synchronize: true, //! remove in prod
 })
 
 async function connectToDB() {
